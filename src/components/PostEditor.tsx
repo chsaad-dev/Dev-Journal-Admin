@@ -44,8 +44,9 @@ export default function PostEditor({ initialPost, onSave }: PostEditorProps) {
   };
 
   const [coverPreview, setCoverPreview] = useState(initialPost?.coverImageUrl || "");
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) {
       console.error("PostEditor: No file selected from file picker.");
@@ -58,23 +59,8 @@ export default function PostEditor({ initialPost, onSave }: PostEditorProps) {
     // Show local preview immediately
     const localPreviewUrl = URL.createObjectURL(file);
     setCoverPreview(localPreviewUrl);
-
-    setIsUploading(true);
+    setSelectedFile(file); // Store for upload on save
     setError(null);
-    try {
-      const { url, publicId } = await uploadToCloudinary(file);
-      setCoverImageUrl(url);
-      setCoverPreview(url);
-    } catch (err: any) {
-      console.error("PostEditor: Cloudinary upload failed:", err);
-      setError(err.message || "Failed to upload cover image. Please try again.");
-      // Revert preview on failure
-      setCoverPreview(coverImageUrl || "");
-    } finally {
-      setIsUploading(false);
-      // Clean up blob URL
-      URL.revokeObjectURL(localPreviewUrl);
-    }
   };
 
   const handleSave = async () => {
@@ -90,13 +76,31 @@ export default function PostEditor({ initialPost, onSave }: PostEditorProps) {
 
     setIsSaving(true);
     try {
+      let finalCoverUrl = coverImageUrl;
+      
+      if (selectedFile) {
+        setIsUploading(true);
+        try {
+          const { url } = await uploadToCloudinary(selectedFile);
+          finalCoverUrl = url;
+          setCoverImageUrl(url);
+        } catch (err: any) {
+          console.error("PostEditor: Cloudinary upload failed:", err);
+          setError(err.message || "Failed to upload cover image. Please try again.");
+          setIsUploading(false);
+          setIsSaving(false);
+          return; // Stop save process if image upload fails
+        }
+        setIsUploading(false);
+      }
+
       const authorId = auth.currentUser?.uid || initialPost?.authorId || "unknown";
       await onSave({
         title: title.trim(),
         excerpt: excerpt.trim(),
         content: content.trim(),
         tags,
-        coverImageUrl,
+        coverImageUrl: finalCoverUrl,
         published,
         authorId, // Ensure authorId is set if new
       });
