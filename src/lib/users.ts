@@ -55,3 +55,8 @@ export async function setUserSuspended(uid: string, suspended: boolean): Promise
   const userRef = doc(db, USERS_COLLECTION, uid);
   await updateDoc(userRef, { suspended });
 }
+
+export async function updateOwnProfile(uid: string, data: { name?: string; bio?: string; photoUrl?: string }): Promise<void> {
+  const userRef = doc(db, USERS_COLLECTION, uid);
+  await updateDoc(userRef, data);
+}
