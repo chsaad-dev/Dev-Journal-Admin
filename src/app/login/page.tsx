@@ -39,40 +39,40 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[var(--color-background)] font-sans p-4">
-      <div className="w-full max-w-md bg-[#11192b] border border-white/10 rounded-[var(--radius-card)] p-8 shadow-xl">
+    <div className="min-h-screen flex items-center justify-center bg-background font-sans p-4">
+      <div className="w-full max-w-md bg-surface-container border border-outline-variant rounded-[var(--radius-card)] p-8 shadow-xl">
         <div className="mb-8 text-center">
-          <h1 className="text-2xl font-bold font-mono text-[var(--color-tertiary)] mb-2">DevJournal Admin</h1>
-          <p className="text-white/60">Sign in to manage content</p>
+          <h1 className="text-2xl font-bold font-mono text-tertiary mb-2">DevJournal Admin</h1>
+          <p className="text-on-surface-variant">Sign in to manage content</p>
         </div>
 
         <form onSubmit={handleLogin} className="space-y-6">
           <div>
-            <label className="block text-sm font-medium text-white/80 mb-2">Email</label>
+            <label className="block text-sm font-medium text-on-surface-variant mb-2">Email</label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-[var(--color-primary-container)] transition-colors"
+              className="w-full bg-surface-container-high border border-outline-variant rounded-lg px-4 py-3 text-on-surface focus:outline-none focus:border-primary-container transition-colors"
               placeholder="admin@example.com"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-white/80 mb-2">Password</label>
+            <label className="block text-sm font-medium text-on-surface-variant mb-2">Password</label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-[var(--color-primary-container)] transition-colors"
+              className="w-full bg-surface-container-high border border-outline-variant rounded-lg px-4 py-3 text-on-surface focus:outline-none focus:border-primary-container transition-colors"
               placeholder="••••••••"
             />
           </div>
 
           {error && (
-            <div className="p-3 rounded bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
+            <div className="p-3 rounded bg-error-container border border-error-container text-error text-sm">
               {error}
             </div>
           )}
@@ -80,7 +80,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-[var(--color-primary-container)] hover:bg-[#4338ca] text-white font-medium py-3 px-4 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-primary-container hover:bg-[#4338ca] text-on-surface font-medium py-3 px-4 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? "Signing in..." : "Sign In"}
           </button>

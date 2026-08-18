@@ -2,7 +2,7 @@ export default function DashboardPage() {
   return (
     <div className="space-y-6">
       <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-      <div className="bg-white/5 border border-white/10 rounded-[var(--radius-card)] p-8 text-center text-white/50">
+      <div className="bg-surface-container border border-outline-variant rounded-[var(--radius-card)] p-8 text-center text-on-surface-variant">
         Coming soon
       </div>
     </div>

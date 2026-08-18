@@ -47,12 +47,12 @@ export default function AdminLayout({
 
   return (
     <AdminGuard>
-      <div className="flex h-screen overflow-hidden bg-[var(--color-background)] text-[var(--color-foreground)] font-sans">
+      <div className="flex h-screen overflow-hidden bg-background text-on-surface font-sans">
         {/* Sidebar */}
-        <aside className="w-64 border-r border-white/10 flex flex-col bg-[#11192b]">
-          <div className="p-6 h-16 flex items-center border-b border-white/10">
+        <aside className="w-64 border-r border-outline-variant flex flex-col bg-surface-container">
+          <div className="p-6 h-16 flex items-center border-b border-outline-variant">
             <h1 className="text-xl font-bold font-mono tracking-tighter text-[var(--color-tertiary)]">
-              DevJournal <span className="text-white text-sm font-normal">Admin</span>
+              DevJournal <span className="text-on-surface text-sm font-normal">Admin</span>
             </h1>
           </div>
 
@@ -66,8 +66,8 @@ export default function AdminLayout({
                   href={item.href}
                   className={`flex items-center px-4 py-3 rounded-[var(--radius-card)] transition-colors duration-200 ${
                     isActive
-                      ? "bg-[var(--color-primary-container)] text-white font-medium"
-                      : "text-white/70 hover:bg-white/5 hover:text-white"
+                      ? "bg-primary-container text-on-surface font-medium"
+                      : "text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface"
                   }`}
                 >
                   <Icon className="w-5 h-5 mr-3" />
@@ -81,21 +81,21 @@ export default function AdminLayout({
         {/* Main Content Area */}
         <div className="flex-1 flex flex-col min-w-0">
           {/* Topbar */}
-          <header className="h-16 border-b border-white/10 flex items-center justify-between px-8 bg-[var(--color-background)]">
+          <header className="h-16 border-b border-outline-variant flex items-center justify-between px-8 bg-background">
             <div className="flex-1" />
             <div className="flex items-center space-x-6">
               <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 rounded-full bg-[var(--color-primary-container)] flex items-center justify-center font-bold text-sm">
+                <div className="w-8 h-8 rounded-full bg-primary-container text-on-surface flex items-center justify-center font-bold text-sm">
                   {currentUser?.email?.charAt(0).toUpperCase() || "A"}
                 </div>
-                <span className="text-sm font-medium text-white/90">
+                <span className="text-sm font-medium text-on-surface">
                   {currentUser?.displayName || currentUser?.email || "Admin"}
                 </span>
               </div>
-              <div className="h-6 w-px bg-white/20" />
+              <div className="h-6 w-px bg-outline-variant" />
               <button
                 onClick={handleSignOut}
-                className="flex items-center text-sm text-white/70 hover:text-red-400 transition-colors"
+                className="flex items-center text-sm text-on-surface-variant hover:text-error transition-colors"
               >
                 <LogOut className="w-4 h-4 mr-2" />
                 Sign Out
