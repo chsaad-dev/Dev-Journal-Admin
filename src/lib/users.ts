@@ -13,22 +13,35 @@ import {
 const USERS_COLLECTION = "users";
 
 export async function getAllUsers(): Promise<UserProfile[]> {
-  const usersQuery = query(collection(db, USERS_COLLECTION), orderBy("createdAt", "desc"));
+  const usersQuery = query(collection(db, USERS_COLLECTION));
   const snapshot = await getDocs(usersQuery);
-  return snapshot.docs.map((doc) => ({
+  const users = snapshot.docs.map((doc) => ({
     uid: doc.id,
     ...doc.data(),
   })) as UserProfile[];
+  
+  return users.sort((a, b) => {
+    const timeA = a.createdAt?.toDate ? a.createdAt.toDate().getTime() : 0;
+    const timeB = b.createdAt?.toDate ? b.createdAt.toDate().getTime() : 0;
+    return timeB - timeA;
+  });
 }
 
 export function subscribeToAllUsers(callback: (users: UserProfile[]) => void) {
-  const usersQuery = query(collection(db, USERS_COLLECTION), orderBy("createdAt", "desc"));
+  const usersQuery = query(collection(db, USERS_COLLECTION));
 
   return onSnapshot(usersQuery, (snapshot) => {
     const users = snapshot.docs.map((doc) => ({
       uid: doc.id,
       ...doc.data(),
     })) as UserProfile[];
+    
+    users.sort((a, b) => {
+      const timeA = a.createdAt?.toDate ? a.createdAt.toDate().getTime() : 0;
+      const timeB = b.createdAt?.toDate ? b.createdAt.toDate().getTime() : 0;
+      return timeB - timeA;
+    });
+    
     callback(users);
   });
 }
