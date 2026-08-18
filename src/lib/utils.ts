@@ -1,13 +1,9 @@
-/**
- * Convert a Firestore Timestamp or JS Date to a relative time string.
- * Example: "2m ago", "5h ago", "3d ago"
- */
 export function formatRelativeTime(timestamp: any): string {
   if (!timestamp) return "Just now";
 
   const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
   const now = new Date();
-  
+
   const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
 
   if (diffInSeconds < 60) {

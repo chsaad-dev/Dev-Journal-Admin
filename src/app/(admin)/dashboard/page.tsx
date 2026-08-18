@@ -90,7 +90,7 @@ export default function DashboardPage() {
   // --- Chart Data ---
   const weeklyData = useMemo(() => {
     // Generate the last 8 weeks buckets
-    const weeks = [];
+    const weeks: { label: string; startTimestamp: number; count: number }[] = [];
     const now = new Date();
     // Normalize to start of current week (Sunday)
     now.setHours(0, 0, 0, 0);
