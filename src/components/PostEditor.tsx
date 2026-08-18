@@ -43,19 +43,37 @@ export default function PostEditor({ initialPost, onSave }: PostEditorProps) {
     setTags(tags.filter((t) => t !== tagToRemove));
   };
 
+  const [coverPreview, setCoverPreview] = useState(initialPost?.coverImageUrl || "");
+
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) return;
+    if (!file) {
+      console.error("PostEditor: No file selected from file picker.");
+      return;
+    }
+
+    // Reset input so selecting the same file again still fires onChange
+    e.target.value = "";
+
+    // Show local preview immediately
+    const localPreviewUrl = URL.createObjectURL(file);
+    setCoverPreview(localPreviewUrl);
 
     setIsUploading(true);
     setError(null);
     try {
-      const { url } = await uploadToCloudinary(file);
+      const { url, publicId } = await uploadToCloudinary(file);
       setCoverImageUrl(url);
+      setCoverPreview(url);
     } catch (err: any) {
-      setError(err.message || "Failed to upload image.");
+      console.error("PostEditor: Cloudinary upload failed:", err);
+      setError(err.message || "Failed to upload cover image. Please try again.");
+      // Revert preview on failure
+      setCoverPreview(coverImageUrl || "");
     } finally {
       setIsUploading(false);
+      // Clean up blob URL
+      URL.revokeObjectURL(localPreviewUrl);
     }
   };
 
@@ -128,9 +146,9 @@ export default function PostEditor({ initialPost, onSave }: PostEditorProps) {
               onClick={() => fileInputRef.current?.click()}
               className="relative w-full aspect-video rounded-lg border-2 border-dashed border-outline-variant hover:border-primary-container bg-surface-container-high flex flex-col items-center justify-center cursor-pointer overflow-hidden transition-colors group"
             >
-              {coverImageUrl ? (
+              {coverPreview ? (
                 <>
-                  <img src={coverImageUrl} alt="Cover" className="absolute inset-0 w-full h-full object-cover" />
+                  <img src={coverPreview} alt="Cover" className="absolute inset-0 w-full h-full object-cover" />
                   <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
                     <span className="text-white text-sm font-medium">Change Image</span>
                   </div>
