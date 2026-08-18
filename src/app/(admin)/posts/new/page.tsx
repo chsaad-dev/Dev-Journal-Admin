@@ -1,10 +1,16 @@
+"use client";
+
+import PostEditor from "@/components/PostEditor";
+import { createPost } from "@/lib/posts";
+import { useRouter } from "next/navigation";
+
 export default function NewPostPage() {
-  return (
-    <div className="space-y-6">
-      <h1 className="text-3xl font-bold tracking-tight">Create Post</h1>
-      <div className="bg-white/5 border border-white/10 rounded-[var(--radius-card)] p-8 text-center text-white/50">
-        Coming soon
-      </div>
-    </div>
-  );
+  const router = useRouter();
+
+  const handleSave = async (postData: any) => {
+    await createPost(postData);
+    router.push("/posts");
+  };
+
+  return <PostEditor onSave={handleSave} />;
 }

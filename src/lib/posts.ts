@@ -3,11 +3,13 @@ import { Post } from "@/types/post";
 import {
   collection,
   getDocs,
+  getDoc,
   query,
   orderBy,
   updateDoc,
   doc,
   deleteDoc,
+  addDoc,
   serverTimestamp,
   onSnapshot,
   writeBatch
@@ -72,4 +74,84 @@ export async function deletePost(postId: string): Promise<void> {
   
   // 3. Commit the batch
   await batch.commit();
+}
+
+/**
+ * Fetch a single post by ID
+ */
+export async function getPostById(postId: string): Promise<Post | null> {
+  const postRef = doc(db, POSTS_COLLECTION, postId);
+  const snapshot = await getDoc(postRef);
+  
+  if (!snapshot.exists()) {
+    return null;
+  }
+  
+  return {
+    id: snapshot.id,
+    ...snapshot.data()
+  } as Post;
+}
+
+/**
+ * Generate a URL-friendly slug from a title
+ */
+function generateSlug(title: string): string {
+  return title
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s-]/g, "") // Remove non-alphanumeric chars
+    .replace(/[\s_-]+/g, "-") // Replace spaces/underscores with hyphens
+    .replace(/^-+|-+$/g, ""); // Remove leading/trailing hyphens
+}
+
+/**
+ * Calculate read time based on word count (approx 200 words per min)
+ */
+function calculateReadTime(content: string): number {
+  if (!content) return 1;
+  const wordCount = content.trim().split(/\s+/).length;
+  return Math.max(1, Math.ceil(wordCount / 200));
+}
+
+/**
+ * Create a new post
+ */
+export async function createPost(post: Partial<Post>): Promise<string> {
+  const slug = post.title ? generateSlug(post.title) : "untitled";
+  const readTimeMinutes = post.content ? calculateReadTime(post.content) : 1;
+  
+  const newPostData = {
+    ...post,
+    slug,
+    readTimeMinutes,
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+    likeCount: 0,
+    commentCount: 0,
+  };
+
+  const docRef = await addDoc(collection(db, POSTS_COLLECTION), newPostData);
+  return docRef.id;
+}
+
+/**
+ * Update an existing post
+ */
+export async function updatePost(postId: string, post: Partial<Post>): Promise<void> {
+  const postRef = doc(db, POSTS_COLLECTION, postId);
+  
+  const updates: any = {
+    ...post,
+    updatedAt: serverTimestamp(),
+  };
+
+  if (post.title) {
+    updates.slug = generateSlug(post.title);
+  }
+  if (post.content !== undefined) {
+    updates.readTimeMinutes = calculateReadTime(post.content);
+  }
+
+  await updateDoc(postRef, updates);
 }
