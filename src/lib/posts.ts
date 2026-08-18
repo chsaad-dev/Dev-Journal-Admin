@@ -55,12 +55,23 @@ export async function togglePublished(postId: string, published: boolean): Promi
   });
 }
 
+import { deleteFromCloudinary } from "./cloudinary";
+
 /**
- * Delete a post and its comments subcollection via a batched write
+ * Delete a post, its comments subcollection, and its cover image from Cloudinary
  */
 export async function deletePost(postId: string): Promise<void> {
   const batch = writeBatch(db);
   const postRef = doc(db, POSTS_COLLECTION, postId);
+  
+  // 0. Fetch post to get coverImageUrl for deletion
+  const postSnap = await getDoc(postRef);
+  if (postSnap.exists()) {
+    const postData = postSnap.data() as Post;
+    if (postData.coverImageUrl) {
+      await deleteFromCloudinary(postData.coverImageUrl);
+    }
+  }
   
   // 1. Delete comments subcollection documents
   const commentsQuery = query(collection(postRef, "comments"));
