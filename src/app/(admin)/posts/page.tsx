@@ -5,6 +5,7 @@ import Link from "next/link";
 import { subscribeToAllPosts, togglePublished, deletePost } from "@/lib/posts";
 import { Post } from "@/types/post";
 import { Search, Plus, Edit2, Trash2, FileText, CheckCircle2, Circle } from "lucide-react";
+import ConfirmModal from "@/components/ConfirmModal";
 
 type FilterStatus = "All" | "Published" | "Draft";
 
@@ -246,30 +247,14 @@ export default function PostsPage() {
       </div>
 
       {/* Delete Confirmation Modal */}
-      {deletingId && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-          <div className="bg-surface-container border border-outline-variant rounded-[var(--radius-card)] p-6 max-w-md w-full shadow-2xl">
-            <h3 className="text-xl font-semibold text-on-surface mb-2">Delete Post</h3>
-            <p className="text-on-surface-variant text-sm mb-6">
-              Are you sure you want to delete this post? This action cannot be undone and will permanently remove all associated comments.
-            </p>
-            <div className="flex justify-end gap-3">
-              <button 
-                onClick={() => setDeletingId(null)}
-                className="px-4 py-2 rounded-lg text-sm font-medium text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors"
-              >
-                Cancel
-              </button>
-              <button 
-                onClick={handleDeleteConfirm}
-                className="px-4 py-2 rounded-lg text-sm font-medium bg-error-container text-error hover:bg-error hover:text-on-surface border border-error-container transition-colors"
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ConfirmModal
+        isOpen={!!deletingId}
+        title="Delete Post"
+        message="Are you sure you want to delete this post? This action cannot be undone and will permanently remove all associated comments."
+        confirmText="Delete"
+        onConfirm={handleDeleteConfirm}
+        onCancel={() => setDeletingId(null)}
+      />
     </div>
   );
 }
