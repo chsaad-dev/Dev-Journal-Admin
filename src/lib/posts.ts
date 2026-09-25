@@ -5,6 +5,7 @@ import {
   getDocs,
   getDoc,
   query,
+  where,
   orderBy,
   updateDoc,
   doc,
@@ -226,6 +227,31 @@ export async function getPostViewers(postId: string): Promise<PostViewer[]> {
     });
   } catch (error) {
     console.error("Error fetching post viewers:", error);
+    return [];
+  }
+}
+
+/**
+ * Fetch all posts by a specific author
+ */
+export async function getPostsByAuthor(authorId: string): Promise<Post[]> {
+  try {
+    const postsQuery = query(
+      collection(db, POSTS_COLLECTION),
+      where("authorId", "==", authorId)
+    );
+    const snapshot = await getDocs(postsQuery);
+    const posts = snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    })) as Post[];
+    return posts.sort((a, b) => {
+      const timeA = a.createdAt?.toDate ? a.createdAt.toDate().getTime() : 0;
+      const timeB = b.createdAt?.toDate ? b.createdAt.toDate().getTime() : 0;
+      return timeB - timeA;
+    });
+  } catch (error) {
+    console.error("Error fetching posts by author:", error);
     return [];
   }
 }

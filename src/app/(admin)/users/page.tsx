@@ -3,7 +3,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { UserProfile } from "@/types/user";
 import { subscribeToAllUsers, updateUserRole, setUserSuspended } from "@/lib/users";
-import { Search, Users as UsersIcon, MoreVertical, ShieldAlert, Shield, Ban, CheckCircle2, User as UserPlaceholder } from "lucide-react";
+import { Search, Users as UsersIcon, MoreVertical, Shield, Ban, CheckCircle2, User as UserPlaceholder } from "lucide-react";
 import ConfirmModal from "@/components/ConfirmModal";
 import Link from "next/link";
 
@@ -60,9 +60,11 @@ export default function UsersPage() {
     }
   };
 
-  const formatDate = (timestamp: any) => {
+  const formatDate = (timestamp: { toDate?: () => Date } | Date | string | null | undefined) => {
     if (!timestamp) return "N/A";
-    const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+    const date = typeof timestamp === "object" && "toDate" in timestamp && typeof timestamp.toDate === "function"
+      ? timestamp.toDate()
+      : new Date(timestamp as string | Date);
     return date.toLocaleDateString(undefined, {
       year: "numeric",
       month: "short",
@@ -165,7 +167,7 @@ export default function UsersPage() {
               {filteredUsers && filteredUsers.map((user) => (
                 <tr key={user.uid} className="hover:bg-surface-container-high transition-colors">
                   <td className="px-6 py-4">
-                    <div className="flex items-center gap-3">
+                    <Link href={`/users/${user.uid}`} className="flex items-center gap-3 group">
                       {user.photoUrl ? (
                         <img src={user.photoUrl} alt="" className="w-8 h-8 rounded-full object-cover bg-surface-container-high" />
                       ) : (
@@ -174,10 +176,10 @@ export default function UsersPage() {
                         </div>
                       )}
                       <div className="flex flex-col truncate max-w-[200px]">
-                        <span className="font-medium text-on-surface truncate">{user.name || "Unknown User"}</span>
+                        <span className="font-medium text-on-surface truncate group-hover:underline">{user.name || "Unknown User"}</span>
                         <span className="text-xs text-on-surface-variant truncate">{user.email || "No email"}</span>
                       </div>
-                    </div>
+                    </Link>
                   </td>
                   <td className="px-6 py-4">
                     {user.role === "admin" ? (
@@ -191,8 +193,10 @@ export default function UsersPage() {
                     )}
                   </td>
                   <td className="px-6 py-4 text-on-surface-variant text-xs">
-                    <div>{user.followerCount || 0} followers</div>
-                    <div>{user.followingCount || 0} following</div>
+                    <Link href={`/users/${user.uid}`} className="hover:text-on-surface hover:underline transition-colors">
+                      <div>{user.followerCount || 0} followers</div>
+                      <div>{user.followingCount || 0} following</div>
+                    </Link>
                   </td>
                   <td className="px-6 py-4">
                     {user.suspended ? (
@@ -215,7 +219,7 @@ export default function UsersPage() {
                       </button>
                       <div className="absolute right-0 mt-1 w-48 bg-surface-container border border-outline-variant rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-10 py-1 overflow-hidden">
                         
-                        <Link href="#" className="block px-4 py-2 text-sm text-left text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface">
+                        <Link href={`/users/${user.uid}`} className="block px-4 py-2 text-sm text-left text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface">
                           View Profile
                         </Link>
                         
