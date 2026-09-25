@@ -14,4 +14,13 @@ export interface Post {
   readTimeMinutes: number;
   likeCount: number;
   commentCount: number;
+  viewCount?: number;
+}
+
+export interface PostViewer {
+  uid: string;
+  name: string;
+  photoUrl?: string;
+  email?: string;
+  viewedAt: any;
 }

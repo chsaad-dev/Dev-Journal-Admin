@@ -1,5 +1,5 @@
 import { db } from "@/lib/firebase";
-import { Post } from "@/types/post";
+import { Post, PostViewer } from "@/types/post";
 import {
   collection,
   getDocs,
@@ -165,4 +165,67 @@ export async function updatePost(postId: string, post: Partial<Post>): Promise<v
   }
 
   await updateDoc(postRef, updates);
+}
+
+/**
+ * Fetch all users who have viewed/read a post
+ */
+export async function getPostViewers(postId: string): Promise<PostViewer[]> {
+  try {
+    const viewsRef = collection(db, POSTS_COLLECTION, postId, "views");
+    const snapshot = await getDocs(viewsRef);
+
+    const viewers: PostViewer[] = await Promise.all(
+      snapshot.docs.map(async (viewDoc) => {
+        const data = viewDoc.data();
+        const uid = viewDoc.id;
+
+        // If name already saved directly in view document
+        if (data.userName) {
+          return {
+            uid,
+            name: data.userName,
+            photoUrl: data.userPhotoUrl || "",
+            email: data.userEmail || "",
+            viewedAt: data.viewedAt,
+          };
+        }
+
+        // Fallback: fetch from users collection
+        try {
+          const userSnap = await getDoc(doc(db, "users", uid));
+          if (userSnap.exists()) {
+            const userData = userSnap.data();
+            return {
+              uid,
+              name: userData.name || "Anonymous Reader",
+              photoUrl: userData.photoUrl || userData.avatarUrl || "",
+              email: userData.email || "",
+              viewedAt: data.viewedAt,
+            };
+          }
+        } catch {
+          // ignore error fetching user doc
+        }
+
+        return {
+          uid,
+          name: "Anonymous Reader",
+          photoUrl: "",
+          email: "",
+          viewedAt: data.viewedAt,
+        };
+      })
+    );
+
+    // Sort by most recent view first
+    return viewers.sort((a, b) => {
+      const timeA = a.viewedAt?.toMillis ? a.viewedAt.toMillis() : (a.viewedAt ? new Date(a.viewedAt).getTime() : 0);
+      const timeB = b.viewedAt?.toMillis ? b.viewedAt.toMillis() : (b.viewedAt ? new Date(b.viewedAt).getTime() : 0);
+      return timeB - timeA;
+    });
+  } catch (error) {
+    console.error("Error fetching post viewers:", error);
+    return [];
+  }
 }

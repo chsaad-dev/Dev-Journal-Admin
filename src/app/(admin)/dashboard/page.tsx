@@ -6,7 +6,8 @@ import {
   Users, 
   MessageSquare, 
   Heart,
-  MessageCircle
+  MessageCircle,
+  Eye
 } from "lucide-react";
 import { 
   BarChart, 
@@ -71,16 +72,18 @@ export default function DashboardPage() {
   }, []);
 
   // --- Derived Metrics ---
-  const { publishedPosts, draftPosts, totalLikes } = useMemo(() => {
+  const { publishedPosts, draftPosts, totalLikes, totalViews } = useMemo(() => {
     let published = 0;
     let draft = 0;
     let likes = 0;
+    let views = 0;
     posts.forEach(p => {
       if (p.published) published++;
       else draft++;
       likes += p.likeCount || 0;
+      views += p.viewCount || 0;
     });
-    return { publishedPosts: published, draftPosts: draft, totalLikes: likes };
+    return { publishedPosts: published, draftPosts: draft, totalLikes: likes, totalViews: views };
   }, [posts]);
 
   const adminUsers = useMemo(() => {
@@ -168,8 +171,8 @@ export default function DashboardPage() {
       <div className="space-y-8 animate-pulse pb-12">
         <div className="h-10 w-48 bg-surface-container rounded-lg"></div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {[1, 2, 3, 4].map(i => (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5">
+          {[1, 2, 3, 4, 5].map(i => (
             <div key={i} className="h-32 bg-surface-container rounded-[16px] border border-outline-variant"></div>
           ))}
         </div>
@@ -187,57 +190,70 @@ export default function DashboardPage() {
       <h1 className="text-3xl font-bold tracking-tight text-on-surface">Dashboard</h1>
 
       {/* Metrics Row */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5">
         
-        <div className="bg-surface-container rounded-[16px] p-6 border border-outline-variant flex flex-col justify-between">
-          <div className="flex items-center gap-3 mb-4">
+        <div className="bg-surface-container rounded-[16px] p-5 border border-outline-variant flex flex-col justify-between">
+          <div className="flex items-center gap-3 mb-3">
             <div className="p-2 bg-primary-container/20 rounded-lg text-primary-container">
-              <FileText className="w-6 h-6" />
+              <FileText className="w-5 h-5" />
             </div>
-            <h3 className="text-on-surface font-semibold">Total Posts</h3>
+            <h3 className="text-on-surface text-sm font-semibold">Total Posts</h3>
           </div>
           <div>
-            <div className="text-4xl font-bold text-on-surface mb-1">{posts.length}</div>
-            <p className="text-sm text-on-surface-variant">{publishedPosts} published, {draftPosts} drafts</p>
+            <div className="text-3xl font-bold text-on-surface mb-1">{posts.length}</div>
+            <p className="text-xs text-on-surface-variant">{publishedPosts} pub, {draftPosts} drafts</p>
           </div>
         </div>
 
-        <div className="bg-surface-container rounded-[16px] p-6 border border-outline-variant flex flex-col justify-between">
-          <div className="flex items-center gap-3 mb-4">
+        <div className="bg-surface-container rounded-[16px] p-5 border border-outline-variant flex flex-col justify-between">
+          <div className="flex items-center gap-3 mb-3">
             <div className="p-2 bg-tertiary/20 rounded-lg text-tertiary">
-              <Users className="w-6 h-6" />
+              <Users className="w-5 h-5" />
             </div>
-            <h3 className="text-on-surface font-semibold">Total Users</h3>
+            <h3 className="text-on-surface text-sm font-semibold">Total Users</h3>
           </div>
           <div>
-            <div className="text-4xl font-bold text-on-surface mb-1">{users.length}</div>
-            <p className="text-sm text-on-surface-variant">{adminUsers} active admins</p>
+            <div className="text-3xl font-bold text-on-surface mb-1">{users.length}</div>
+            <p className="text-xs text-on-surface-variant">{adminUsers} active admins</p>
           </div>
         </div>
 
-        <div className="bg-surface-container rounded-[16px] p-6 border border-outline-variant flex flex-col justify-between">
-          <div className="flex items-center gap-3 mb-4">
+        <div className="bg-surface-container rounded-[16px] p-5 border border-outline-variant flex flex-col justify-between">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="p-2 bg-[var(--color-primary-container)]/20 rounded-lg text-[var(--color-tertiary)]">
+              <Eye className="w-5 h-5" />
+            </div>
+            <h3 className="text-on-surface text-sm font-semibold">Total Views</h3>
+          </div>
+          <div>
+            <div className="text-3xl font-bold text-on-surface mb-1">{totalViews.toLocaleString()}</div>
+            <p className="text-xs text-on-surface-variant">Across all posts</p>
+          </div>
+        </div>
+
+        <div className="bg-surface-container rounded-[16px] p-5 border border-outline-variant flex flex-col justify-between">
+          <div className="flex items-center gap-3 mb-3">
             <div className="p-2 bg-success/20 rounded-lg text-success">
-              <MessageSquare className="w-6 h-6" />
+              <MessageSquare className="w-5 h-5" />
             </div>
-            <h3 className="text-on-surface font-semibold">Comments</h3>
+            <h3 className="text-on-surface text-sm font-semibold">Comments</h3>
           </div>
           <div>
-            <div className="text-4xl font-bold text-on-surface mb-1">{comments.length}</div>
-            <p className="text-sm text-on-surface-variant">Across all posts</p>
+            <div className="text-3xl font-bold text-on-surface mb-1">{comments.length}</div>
+            <p className="text-xs text-on-surface-variant">Across all posts</p>
           </div>
         </div>
 
-        <div className="bg-surface-container rounded-[16px] p-6 border border-outline-variant flex flex-col justify-between">
-          <div className="flex items-center gap-3 mb-4">
+        <div className="bg-surface-container rounded-[16px] p-5 border border-outline-variant flex flex-col justify-between">
+          <div className="flex items-center gap-3 mb-3">
             <div className="p-2 bg-error/20 rounded-lg text-error">
-              <Heart className="w-6 h-6" />
+              <Heart className="w-5 h-5" />
             </div>
-            <h3 className="text-on-surface font-semibold">Total Likes</h3>
+            <h3 className="text-on-surface text-sm font-semibold">Total Likes</h3>
           </div>
           <div>
-            <div className="text-4xl font-bold text-on-surface mb-1">{totalLikes}</div>
-            <p className="text-sm text-on-surface-variant">Across all posts</p>
+            <div className="text-3xl font-bold text-on-surface mb-1">{totalLikes}</div>
+            <p className="text-xs text-on-surface-variant">Across all posts</p>
           </div>
         </div>
 

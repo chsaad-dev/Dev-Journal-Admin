@@ -4,8 +4,9 @@ import { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
 import { subscribeToAllPosts, togglePublished, deletePost } from "@/lib/posts";
 import { Post } from "@/types/post";
-import { Search, Plus, Edit2, Trash2, FileText, CheckCircle2, Circle } from "lucide-react";
+import { Search, Plus, Edit2, Trash2, FileText, CheckCircle2, Circle, Eye } from "lucide-react";
 import ConfirmModal from "@/components/ConfirmModal";
+import PostViewersModal from "@/components/PostViewersModal";
 
 type FilterStatus = "All" | "Published" | "Draft";
 
@@ -14,6 +15,7 @@ export default function PostsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [filter, setFilter] = useState<FilterStatus>("All");
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [viewersPost, setViewersPost] = useState<Post | null>(null);
 
   useEffect(() => {
     const unsubscribe = subscribeToAllPosts((data) => {
@@ -208,8 +210,17 @@ export default function PostsPage() {
                     </div>
                   </td>
                   <td className="px-6 py-4 text-on-surface-variant text-xs">
-                    <div>{post.likeCount} likes</div>
-                    <div>{post.commentCount} comments</div>
+                    <button
+                      onClick={() => setViewersPost(post)}
+                      className="inline-flex items-center gap-1.5 font-medium text-[var(--color-tertiary)] hover:underline group/views cursor-pointer"
+                      title="Click to view readers"
+                    >
+                      <Eye className="w-3.5 h-3.5" />
+                      <span>{post.viewCount || 0} views</span>
+                    </button>
+                    <div className="text-[11px] text-on-surface-variant/80 mt-0.5">
+                      {post.likeCount} likes • {post.commentCount} comments
+                    </div>
                   </td>
                   <td className="px-6 py-4 text-on-surface-variant">
                     {formatDate(post.createdAt)}
@@ -254,6 +265,13 @@ export default function PostsPage() {
         confirmText="Delete"
         onConfirm={handleDeleteConfirm}
         onCancel={() => setDeletingId(null)}
+      />
+
+      {/* Post Readers Modal */}
+      <PostViewersModal
+        post={viewersPost}
+        isOpen={!!viewersPost}
+        onClose={() => setViewersPost(null)}
       />
     </div>
   );
