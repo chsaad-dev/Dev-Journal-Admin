@@ -4,11 +4,14 @@ import { useEffect, useState, useMemo } from "react";
 import { 
   FileText, 
   Users, 
+  UserPlus,
   MessageSquare, 
   Heart,
   MessageCircle,
-  Eye
+  Eye,
+  User as UserPlaceholder
 } from "lucide-react";
+import Link from "next/link";
 import { 
   BarChart, 
   Bar, 
@@ -88,6 +91,26 @@ export default function DashboardPage() {
 
   const adminUsers = useMemo(() => {
     return users.filter(u => u.role === "admin").length;
+  }, [users]);
+
+  // --- Follow & Social Analytics ---
+  const { totalFollows, topFollowedUsers, avgFollowers } = useMemo(() => {
+    let follows = 0;
+    users.forEach((u) => {
+      follows += u.followerCount || 0;
+    });
+
+    const sortedByFollowers = [...users]
+      .sort((a, b) => (b.followerCount || 0) - (a.followerCount || 0))
+      .slice(0, 5);
+
+    const avg = users.length > 0 ? (follows / users.length).toFixed(1) : "0";
+
+    return {
+      totalFollows: follows,
+      topFollowedUsers: sortedByFollowers,
+      avgFollowers: avg,
+    };
   }, [users]);
 
   // --- Chart Data ---
@@ -324,6 +347,109 @@ export default function DashboardPage() {
           </div>
         </div>
 
+      </div>
+
+      {/* Social & Follow Analytics */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Top 5 Most Followed Creators */}
+        <div className="lg:col-span-2 bg-surface-container rounded-[16px] p-6 border border-outline-variant">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-2">
+              <div className="p-2 bg-primary-container/20 rounded-lg text-primary-container">
+                <Users className="w-5 h-5" />
+              </div>
+              <div>
+                <h2 className="text-xl font-semibold text-on-surface">Top Followed Creators</h2>
+                <p className="text-xs text-on-surface-variant">Most influential developers in the community</p>
+              </div>
+            </div>
+            <Link
+              href="/users"
+              className="text-xs font-medium text-primary-container hover:underline"
+            >
+              View all users →
+            </Link>
+          </div>
+
+          {topFollowedUsers.length === 0 ? (
+            <p className="text-sm text-on-surface-variant italic py-8 text-center">No user follow data available yet.</p>
+          ) : (
+            <div className="divide-y divide-outline-variant">
+              {topFollowedUsers.map((user, index) => (
+                <div key={user.uid} className="flex items-center justify-between py-3.5 first:pt-0 last:pb-0">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <span className={`w-6 text-center text-sm font-bold ${
+                      index === 0 ? "text-amber-400" : index === 1 ? "text-slate-300" : index === 2 ? "text-amber-600" : "text-on-surface-variant"
+                    }`}>
+                      #{index + 1}
+                    </span>
+                    <Link href={`/users/${user.uid}`} className="flex items-center gap-3 group min-w-0">
+                      {user.photoUrl ? (
+                        <img src={user.photoUrl} alt="" className="w-9 h-9 rounded-full object-cover bg-surface-container-high shrink-0" />
+                      ) : (
+                        <div className="w-9 h-9 rounded-full bg-surface-container-high flex items-center justify-center shrink-0 border border-outline-variant">
+                          <UserPlaceholder className="w-4 h-4 text-on-surface-variant" />
+                        </div>
+                      )}
+                      <div className="truncate">
+                        <p className="text-sm font-medium text-on-surface group-hover:underline truncate">{user.name || "Unknown User"}</p>
+                        <p className="text-xs text-on-surface-variant truncate">{user.email || "No email"}</p>
+                      </div>
+                    </Link>
+                  </div>
+
+                  <div className="flex items-center gap-3 shrink-0 ml-4">
+                    <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-primary-container text-on-surface">
+                      {user.followerCount || 0} followers
+                    </span>
+                    <span className="text-xs text-on-surface-variant hidden sm:inline">
+                      {user.followingCount || 0} following
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Social Overview Stats */}
+        <div className="bg-surface-container rounded-[16px] p-6 border border-outline-variant flex flex-col justify-between">
+          <div>
+            <div className="flex items-center gap-2 mb-4">
+              <div className="p-2 bg-tertiary/20 rounded-lg text-tertiary">
+                <UserPlus className="w-5 h-5" />
+              </div>
+              <div>
+                <h2 className="text-xl font-semibold text-on-surface">Social Stats</h2>
+                <p className="text-xs text-on-surface-variant">Community connection metrics</p>
+              </div>
+            </div>
+
+            <div className="space-y-4 mt-6">
+              <div className="p-4 bg-surface-container-high rounded-xl border border-outline-variant/60">
+                <div className="text-xs text-on-surface-variant font-medium">Total Follow Connections</div>
+                <div className="text-2xl font-bold text-on-surface mt-1">{totalFollows.toLocaleString()}</div>
+                <div className="text-xs text-on-surface-variant mt-0.5">Across all registered developers</div>
+              </div>
+
+              <div className="p-4 bg-surface-container-high rounded-xl border border-outline-variant/60">
+                <div className="text-xs text-on-surface-variant font-medium">Average Followers / User</div>
+                <div className="text-2xl font-bold text-on-surface mt-1">{avgFollowers}</div>
+                <div className="text-xs text-on-surface-variant mt-0.5">Community connection density</div>
+              </div>
+
+              <div className="p-4 bg-surface-container-high rounded-xl border border-outline-variant/60">
+                <div className="text-xs text-on-surface-variant font-medium">Creators with Followers</div>
+                <div className="text-2xl font-bold text-on-surface mt-1">
+                  {users.filter(u => (u.followerCount || 0) > 0).length} / {users.length}
+                </div>
+                <div className="text-xs text-on-surface-variant mt-0.5">
+                  {users.length > 0 ? Math.round((users.filter(u => (u.followerCount || 0) > 0).length / users.length) * 100) : 0}% of creators followed
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
