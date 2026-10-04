@@ -7,6 +7,7 @@ import {
   Users, 
   MessageSquare, 
   Megaphone, 
+  Bug,
   Settings, 
   LogOut 
 } from "lucide-react";
@@ -42,6 +43,7 @@ export default function AdminLayout({
     { label: "Users", href: "/users", icon: Users },
     { label: "Comments", href: "/comments", icon: MessageSquare },
     { label: "Broadcast", href: "/broadcast", icon: Megaphone },
+    { label: "Bug Reports", href: "/bug-reports", icon: Bug },
     { label: "Settings", href: "/settings", icon: Settings },
   ];
 
