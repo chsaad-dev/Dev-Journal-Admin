@@ -62,9 +62,13 @@ export async function updateOwnProfile(uid: string, data: { name?: string; bio?:
 }
 
 export async function getUserById(uid: string): Promise<UserProfile | null> {
-  const userDoc = await getDoc(doc(db, USERS_COLLECTION, uid));
-  if (!userDoc.exists()) return null;
-  return { uid: userDoc.id, ...userDoc.data() } as UserProfile;
+  try {
+    const userDoc = await getDoc(doc(db, USERS_COLLECTION, uid));
+    if (!userDoc.exists()) return null;
+    return { uid: userDoc.id, ...userDoc.data() } as UserProfile;
+  } catch (error) {
+    return null;
+  }
 }
 
 export async function getUserFollowers(uid: string): Promise<UserProfile[]> {

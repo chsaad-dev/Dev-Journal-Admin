@@ -92,17 +92,22 @@ export async function deletePost(postId: string): Promise<void> {
  * Fetch a single post by ID
  */
 export async function getPostById(postId: string): Promise<Post | null> {
-  const postRef = doc(db, POSTS_COLLECTION, postId);
-  const snapshot = await getDoc(postRef);
-  
-  if (!snapshot.exists()) {
+  try {
+    const postRef = doc(db, POSTS_COLLECTION, postId);
+    const snapshot = await getDoc(postRef);
+    
+    if (!snapshot.exists()) {
+      return null;
+    }
+    
+    return {
+      id: snapshot.id,
+      ...snapshot.data()
+    } as Post;
+  } catch (error) {
+    // If the post does not exist or rules reject unauthenticated access (e.g. unpublished draft), return null
     return null;
   }
-  
-  return {
-    id: snapshot.id,
-    ...snapshot.data()
-  } as Post;
 }
 
 /**
