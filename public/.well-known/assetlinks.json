@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.devjournal",
+      "sha256_cert_fingerprints": [
+        "C2:79:D3:BA:70:01:A3:8A:8B:B6:3F:89:A5:C3:01:F5:9A:FA:9A:61:D7:31:F4:15:14:22:7C:02:5A:83:F7:E9"
+      ]
+    }
+  }
+]
